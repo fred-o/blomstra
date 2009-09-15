@@ -1,0 +1,21 @@
+<assembly>
+  <id>distribution</id>
+  <formats>
+    <format>tar.gz</format>
+    <format>tar.bz2</format>
+    <format>zip</format>
+  </formats>
+  <fileSets>
+    <fileSet>
+      <directory>${project.build.directory}/appassembler/bin</directory>
+      <outputDirectory>bin</outputDirectory>
+      <useDefaultExcludes>true</useDefaultExcludes>
+      <fileMode>0755</fileMode>    
+    </fileSet>
+    <fileSet>
+      <directory>${project.build.directory}/appassembler/lib</directory>
+      <outputDirectory>lib</outputDirectory>
+      <useDefaultExcludes>true</useDefaultExcludes>
+    </fileSet>
+  </fileSets>
+</assembly>
