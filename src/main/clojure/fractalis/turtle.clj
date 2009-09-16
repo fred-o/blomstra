@@ -27,7 +27,7 @@
 
 (defn exec-commands [st cmds]
   (if (empty? cmds) st
-      (exec-commands
+      (recur
        ((first cmds) st)
        (rest cmds))))
 
