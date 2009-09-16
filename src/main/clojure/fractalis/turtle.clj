@@ -3,20 +3,20 @@
 
 (defstruct state :x :y :angle :prev-pos)
 
-(defn- newpos [st len]
+(defn- newpos [len st]
   [(+ (:x st) (* (Math/cos (:angle st)) len))
    (+ (:y st) (* (Math/sin (:angle st)) len))])
 
-(defn draw [g st len]
-  (let [[x y] (newpos st len)]
-    (.drawLine (:x st) (:y st) x y)
+(defn forward [g len st]
+  (let [[x y] (newpos len st)]
+    (.drawLine g (:x st) (:y st) x y)
     (assoc st :x x :y y)))
 
-(defn skip [st len]
-  (let [[x y] (newpos st len)]
+(defn skip [len st]
+  (let [[x y] (newpos len st)]
     (assoc st :x x :y y)))
 
-(defn rotate-deg [st deg]
+(defn rotate-deg [deg st]
   (assoc st :angle (+ (:angle st) (* (/ deg 360) 2 Math/PI))))
 
 (defn remember [st]
@@ -24,3 +24,12 @@
 
 (defn recall [st]
   (:prev-pos st))
+
+(defn exec-commands [st cmds]
+  (if (empty? cmds) st
+      (exec-commands
+       ((first cmds) st)
+       (rest cmds))))
+
+
+       
