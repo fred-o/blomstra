@@ -1,51 +1,41 @@
 (ns fractalis
-  (:use [fractalis.turtle])
+  (:use [fractalis.turtle]
+	[fractalis.lsystem])
   (:import [javax.swing JFrame JLabel]
 	   [java.awt Canvas Color GradientPaint Graphics2D RenderingHints]))
 
-(def *update-fn* (atom nil))
+(defn create-mutable-frame []
+  "Creates a JFrame and returns a vector of the frame, the set-update-fn and the repaint-fn."
+  (let [frame (JFrame. "Fractalis")
+	update-fn (atom nil)
+	c (proxy [Canvas] []
+	    (paint [g]
+		   (if @update-fn (@update-fn g))))
+	repaint-fn (fn [] (.repaint c))]
+    [(doto frame
+       (.setSize 400 400)
+       (.add c)
+       (.setVisible true))
+     #(swap! update-fn (fn [f] %))
+     repaint-fn]))
 
-(def *frame* 
-     (let [frame (JFrame. "Fractalis")
-	   c (proxy [Canvas] []
+(defn create-simple-frame
+  "Creates a JFrame with the given update-fn and bg-fn."
+  ([update-fn]
+     (let [gp (GradientPaint. 0 0 Color/white 500 1500 Color/yellow)]
+       (create-simple-frame update-fn (fn [g w h]
+					(.setPaint g gp)
+					(.fillRect g 0 0 w h)
+					(.setColor g Color/black)))))
+  ([update-fn bg-fn]
+     (let [rh (RenderingHints. RenderingHints/KEY_ANTIALIASING RenderingHints/VALUE_ANTIALIAS_ON)
+	   frame (JFrame. "Fractalis")
+	   c (proxy [Canvas] nil
 	       (paint [g]
-		      (if @*update-fn* (@*update-fn* g))))]
+		      (prn "paint!")
+		      (bg-fn g (proxy-super getWidth) (proxy-super getHeight))
+		      (update-fn g)))]
        (doto frame
-	 (.setSize 400 400)
+	 (.setSize 500 500)
 	 (.add c)
-	 (.setVisible true))))
-
-(defn set-update-fn [f]
-  (swap! *update-fn* (fn [&args] f))
-  (.repaint *frame*))
-
-
-(let [rh (RenderingHints. RenderingHints/KEY_ANTIALIASING RenderingHints/VALUE_ANTIALIAS_ON)
-      gp (GradientPaint. 0 0 Color/white 500 1500 Color/yellow)]
-  (swap! *update-fn*
-	 (fn [&args]
-	   (fn [g]
-	     (.setRenderingHints g rh)
-	     (.setPaint g gp)
-	     (.fillRect g 0 0 400 400)
-	     (.setColor g Color/black)
-	     (exec-commands 
-	      (struct state 100 100 0 nil)
-	      (list 
-	       (partial forward g 100)
-	       (partial rotate-deg 55)
-	       (partial forward g 100)
-	       (partial rotate-deg 55)
-	       (partial forward g 100)
-	       (partial rotate-deg 55)
-	       (partial forward g 100)
-	       (partial rotate-deg 55)
-	       (partial forward g 100)
-	       (partial rotate-deg 55)
-	       (partial forward g 100)
-	       (partial rotate-deg 55)))))))
-
-
-
-
-
+	 (.setVisible true)))))
