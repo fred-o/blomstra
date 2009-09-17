@@ -24,3 +24,17 @@ substitutions in subs"
 	     :b (partial forward g len)
 	     :+ (partial rotate-deg -60)
 	     :- (partial rotate-deg 60) } s)))))
+
+(defn hilbert [n]
+  (let [start (list :l)
+	rules { :l (list :+ :r :f :- :l :f :l :- :f :r :+)
+	       :r (list :- :l :f :+ :r :f :r :+ :f :l :-) }
+	s (substitute start rules n)
+	len (/ 400 (- (Math/pow 2 n) 1))]
+    (fn [g]
+      (exec-commands
+       (struct state 50 440 0 nil)
+       (filter identity 
+	       (map { :f (partial forward g len)
+		     :+ (partial rotate-deg -90)
+		     :- (partial rotate-deg 90)} s))))))

@@ -32,10 +32,26 @@
 	   frame (JFrame. "Fractalis")
 	   c (proxy [Canvas] nil
 	       (paint [g]
-		      (prn "paint!")
+		      (.setRenderingHints g rh)
 		      (bg-fn g (proxy-super getWidth) (proxy-super getHeight))
 		      (update-fn g)))]
        (doto frame
 	 (.setSize 500 500)
 	 (.add c)
 	 (.setVisible true)))))
+
+
+(create-simple-frame
+ (fn [g]
+   (exec-commands
+    (struct state 200 200 0 nil)
+    (list
+     remember
+     remember
+     (partial forward g 100)
+     recall
+     (partial rotate-deg 45)
+     (partial forward g 100)
+     recall
+     (partial rotate-deg 90)
+     (partial forward g 100)))))
