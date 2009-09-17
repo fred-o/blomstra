@@ -1,23 +1,39 @@
 (ns fractalis.turtle
     (:import [java.awt Graphics2D]))
 
-(defstruct state :x :y :angle :prev-pos)
+(defstruct state :g :unit :x :y :angle :prev-pos)
 
-(defn- newpos [len st]
-  [(+ (:x st) (* (Math/cos (:angle st)) len))
-   (+ (:y st) (* (Math/sin (:angle st)) len))])
+(defn rad [d]
+  (mod 
+   (/ (* d 2 Math/PI) 360)
+   (* 2 Math/PI)))
 
-(defn forward [g len st]
-  (let [[x y] (newpos len st)]
-    (.drawLine g (:x st) (:y st) x y)
-    (assoc st :x x :y y)))
+(defn- newpos [mul st]
+  (let [l (* mul (:unit st))]
+    [(+ (:x st) (* (Math/cos (:angle st)) l))
+     (+ (:y st) (* (Math/sin (:angle st)) l))]))
+
+(defn forward-1 [st]
+  (forward 1 st))
+
+(defn forward
+  ([st] (forward 1 st))
+  ([mul st]
+     (let [[x y] (newpos mul st)]
+       (.drawLine (:g st) (:x st) (:y st) x y)
+       (assoc st :x x :y y))))
 
 (defn skip [len st]
   (let [[x y] (newpos len st)]
     (assoc st :x x :y y)))
 
 (defn rotate-deg [deg st]
-  (assoc st :angle (+ (:angle st) (* (/ deg 360) 2 Math/PI))))
+  (assoc st :angle (+ (:angle st) (rad deg))))
+
+(defn left [deg st]
+  (rotate-deg (- deg) st))
+
+(def right rotate-deg)
 
 (defn remember [st]
   (assoc st :prev-pos st))

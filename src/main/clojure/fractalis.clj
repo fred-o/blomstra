@@ -40,18 +40,3 @@
 	 (.add c)
 	 (.setVisible true)))))
 
-
-(create-simple-frame
- (fn [g]
-   (exec-commands
-    (struct state 200 200 0 nil)
-    (list
-     remember
-     remember
-     (partial forward g 100)
-     recall
-     (partial rotate-deg 45)
-     (partial forward g 100)
-     recall
-     (partial rotate-deg 90)
-     (partial forward g 100)))))
