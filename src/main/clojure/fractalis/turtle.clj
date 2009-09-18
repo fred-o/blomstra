@@ -13,9 +13,6 @@
     [(+ (:x st) (* (Math/cos (:angle st)) l))
      (+ (:y st) (* (Math/sin (:angle st)) l))]))
 
-(defn forward-1 [st]
-  (forward 1 st))
-
 (defn forward
   ([st] (forward 1 st))
   ([mul st]
