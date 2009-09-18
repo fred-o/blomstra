@@ -1,15 +1,7 @@
 (ns fractalis.lsystem
   (:use [fractalis.turtle]))
 
-(defn substitute
-  "Return a list where all symbols in s have been expanded into their
-substitutions in subs"
-  ([s subs] (substitute s subs 1))
-  ([s subs n]
-     (if (= n 0) s
-	 (substitute
-	  (mapcat #(or (% subs) (list %)) s)
-	  subs (dec n)))))
+;; Helper functions
 
 (defn- get-definition [d & ks]
   "Given a definition-list and a list of keys, returns a concated list of all
@@ -55,19 +47,35 @@ vectors, each containing a single rule."
   (zipmap (map first rs)
 	  (map #(cons 'list (rest (rest %))) rs)))
 
+(defstruct lsystem-struct
+  :symbols :start :rules)
+
+;; Interface functions
+
 (defmacro lsystem [& defs]
   "Define a L-system."
   (let [st (make-symbol-table (get-definition defs :variables :constants))
 	start (map symkey (get-definition defs :start))
 	rules (make-rule-table (split-rules (get-definition defs :rules)))]
-    `(memoize
-      (fn [n#]
-	(let [symbols# ~st
-	      start# (list ~@start)
-	      rules# ~rules
-	      s# (substitute start# rules# n#)]
-	  (filter identity
-		  (map symbols# s#)))))))
+    `(struct lsystem-struct
+	     ~st (list ~@start) ~rules)))
+
+(defn evolve
+  "Return the result of evolving an L-system n steps."
+  ([ls n] (evolve (:start ls) (:rules ls) n))
+  ([s subs n]
+     (if (= n 0) s
+	 (evolve
+	  (mapcat #(or (% subs) (list %)) s)
+	  subs (dec n)))))
+
+(defn create-draw-fn [ls n]
+  "Compile an L-system into a function that draws that figure on the screen."
+  (let [fns (filter identity (map (:symbols ls) (evolve ls n)))]
+    (fn [g x y angle unit]
+      (exec-commands (struct turtle-state g x y angle unit nil) fns))))
+
+;; System definitions
 
 (def sierpinski
      (lsystem
@@ -88,34 +96,3 @@ vectors, each containing a single rule."
       (:start L)
       (:rules L -> + R F - L F L - F R +
 	      R -> - L F + R F R + F L -)))
-
-
-;(fractalis/create-simple-frame (fn [g] (exec-commands (struct state g 10 50 450 0 nil) (sierpinski 6))))
-
-;;; (defn sierpinski [n]
-;;;   (let [start (list :a)
-;;; 	rules { :a (list :b :- :a :- :b )
-;;; 	       :b (list :a :+ :b :+ :a) }
-;;; 	s (substitute start rules n)
-;;; 	len (/ 400 (Math/pow 2 n))]
-;;;     (fn [g]
-;;;       (exec-commands
-;;;        (struct state g 50 400 (if (even? n) 0 (* 2 Math/PI (/ -60 360))) nil)
-;;;        (map { :a (partial forward len)
-;;; 	     :b (partial forward len)
-;;; 	     :+ (partial left 60)
-;;; 	     :- (partial right 60) } s)))))
-
-;; (defn hilbert [n]
-;;   (let [start (list :l)
-;; 	rules { :l (list :+ :r :f :- :l :f :l :- :f :r :+)
-;; 	       :r (list :- :l :f :+ :r :f :r :+ :f :l :-) }
-;; 	s (substitute start rules n)
-;; 	len (/ 400 (- (Math/pow 2 n) 1))]
-;;     (fn [g]
-;;       (exec-commands
-;;        (struct state g 50 440 0 nil)
-;;        (filter identity 
-;; 	       (map { :f (partial forward len)
-;; 		     :+ (partial left 90)
-;; 		     :- (partial right 90)} s))))))

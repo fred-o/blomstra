@@ -1,7 +1,10 @@
 (ns fractalis.turtle
     (:import [java.awt Graphics2D]))
+;;
+;; A simple turtle graphics implementation
+;;
 
-(defstruct state :g :unit :x :y :angle :prev-pos)
+(defstruct turtle-state :g :x :y :angle :unit :prev-pos)
 
 (defn rad [d]
   (mod 

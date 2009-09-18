@@ -4,6 +4,10 @@
   (:import [javax.swing JFrame JLabel]
 	   [java.awt Canvas Color GradientPaint Graphics2D RenderingHints]))
 
+;;
+;; General functions for managing graphic interfaces
+;;
+
 (defn create-mutable-frame []
   "Creates a JFrame and returns a vector of the frame, the set-update-fn and the repaint-fn."
   (let [frame (JFrame. "Fractalis")
