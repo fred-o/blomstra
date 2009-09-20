@@ -1,5 +1,8 @@
 (ns fractalis.turtle
-    (:import [java.awt Graphics2D]))
+  (:use [clojure.contrib.import-static])
+  (:import [java.awt Graphics2D]))
+(import-static java.lang.Math cos sin PI)
+
 ;;
 ;; A simple turtle graphics implementation
 ;;
@@ -8,13 +11,13 @@
 
 (defn rad [d]
   (mod 
-   (/ (* d 2 Math/PI) 360)
-   (* 2 Math/PI)))
+   (/ (* d 2 PI) 360)
+   (* 2 PI)))
 
 (defn- newpos [mul st]
   (let [l (* mul (:unit st))]
-    [(+ (:x st) (* (Math/cos (:angle st)) l))
-     (+ (:y st) (* (Math/sin (:angle st)) l))]))
+    [(+ (:x st) (* (cos (:angle st)) l))
+     (+ (:y st) (* (sin (:angle st)) l))]))
 
 (defn forward
   ([st] (forward 1 st))

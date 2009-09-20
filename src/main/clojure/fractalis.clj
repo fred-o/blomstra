@@ -1,7 +1,9 @@
 (ns fractalis
   (:use [fractalis.turtle]
 	[fractalis.lsystem]
-	[fractalis.ui]))
+	[fractalis.ui]
+	[clojure.contrib.import-static]))
+(import-static java.lang.Math pow sqrt)
 
 ;; The Sierpinski triangle
 
@@ -19,7 +21,7 @@
      (create-draw-fn sierpinski
 		     :x 10 :y 90
 		     :angle #(if (even? %) 0 (rad -60))
-		     :unit #(/ 1 (Math/pow 2 %))))
+		     :unit #(/ 1 (pow 2 %))))
 
 ;; (create-simple-frame (partial draw-sierpinski 8))
 
@@ -38,7 +40,7 @@
 (def draw-hilbert
      (create-draw-fn hilbert
 		     :x 5 :y 95 :angle 0
-		     :unit #(/ 1 (- (Math/pow 2 %) 1))))
+		     :unit #(/ 1 (- (pow 2 %) 1))))
 
 ; (create-simple-frame (partial draw-hilbert 6))
 
@@ -58,6 +60,15 @@
      (create-draw-fn dragon
 		     :x 30 :y 40
 		     :angle #(rad (* -45 (mod % 8)))
-		     :unit #(/ 1 (Math/pow (Math/sqrt 2) %))))
+		     :unit #(/ 1 (pow (sqrt 2) %))))
 
-(create-simple-frame (partial draw-dragon 14))
+;; (create-simple-frame (partial draw-dragon 14))
+
+;;; (defn draw-dragon [n]
+;;;   (let [draw-fn (create-draw-fn dragon n)]
+;;;     (create-simple-frame
+;;;      (fn [g] (do
+;;; 	       (prn (.getClipBounds g))
+;;; 	       (draw-fn g 120 275
+;;; 			(rad (* -45 (mod n 8)))
+;;; 			(/ 300 (Math/pow (Math/sqrt 2) n))))))))
