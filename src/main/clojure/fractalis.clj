@@ -3,7 +3,7 @@
 	[fractalis.lsystem]
 	[fractalis.ui]))
 
-;; System definitions
+;; The Sierpinski triangle
 
 (def sierpinski
      (lsystem
@@ -15,6 +15,16 @@
       (:rules a -> b - a - b
 	      b -> a + b + a)))
 
+(def draw-sierpinski
+     (create-draw-fn sierpinski
+		     :x 10 :y 90
+		     :angle #(if (even? %) 0 (rad -60))
+		     :unit #(/ 1 (Math/pow 2 %))))
+
+;; (create-simple-frame (partial draw-sierpinski 8))
+
+;; The Hilbert curve
+
 (def hilbert
      (lsystem
       (:variables L  R)
@@ -24,6 +34,15 @@
       (:start L)
       (:rules L -> + R F - L F L - F R +
 	      R -> - L F + R F R + F L -)))
+
+(def draw-hilbert
+     (create-draw-fn hilbert
+		     :x 5 :y 95 :angle 0
+		     :unit #(/ 1 (- (Math/pow 2 %) 1))))
+
+; (create-simple-frame (partial draw-hilbert 6))
+
+;; The Dragon curve
 
 (def dragon
      (lsystem
@@ -35,24 +54,10 @@
       (:rules X -> X + Y F
 	      Y -> F X - Y)))
 
+(def draw-dragon
+     (create-draw-fn dragon
+		     :x 30 :y 40
+		     :angle #(rad (* -45 (mod % 8)))
+		     :unit #(/ 1 (Math/pow (Math/sqrt 2) %))))
 
-(defn draw-sierpinski [n]
-  (let [draw-fn (create-draw-fn sierpinski n)]
-    (create-simple-frame
-     (fn [g] (draw-fn g 50 450
-                     (if (even? n) 0 (rad -60))
-                     (/ 400 (Math/pow 2 n)))))))
-
-(defn draw-hilbert [n]
-  (let [draw-fn (create-draw-fn hilbert n)]
-    (create-simple-frame
-     (fn [g] (draw-fn g 50 450
-                     0
-                     (/ 400 (- (Math/pow 2 n) 1)))))))
-
-(defn draw-dragon [n]
-  (let [draw-fn (create-draw-fn dragon n)]
-    (create-simple-frame
-     (fn [g] (draw-fn g 400 150
-                     (rad (* -45 (mod n 4)))
-                     (/ 400 (Math/pow 1.5 n)))))))
+(create-simple-frame (partial draw-dragon 14))

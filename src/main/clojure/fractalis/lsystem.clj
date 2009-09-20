@@ -47,13 +47,16 @@ vectors, each containing a single rule."
   (zipmap (map first rs)
 	  (map #(cons 'list (rest (rest %))) rs)))
 
+(defn- apply-maybe [f & args]
+  (if (fn? f) (apply f args) f))
+
 (defstruct lsystem-struct
   :symbols :start :rules)
 
 ;; Interface functions
 
 (defmacro lsystem [& defs]
-  "Define a L-system."
+  "Define an L-system."
   (let [st (make-symbol-table (get-definition defs :variables :constants))
 	start (map symkey (get-definition defs :start))
 	rules (make-rule-table (split-rules (get-definition defs :rules)))]
@@ -69,9 +72,34 @@ vectors, each containing a single rule."
 	  (mapcat #(or (% subs) (list %)) s)
 	  subs (dec n)))))
 
-(defn create-draw-fn [ls n]
-  "Compile an L-system into a function that draws that figure on the screen."
-  (let [fns (filter identity (map (:symbols ls) (evolve ls n)))]
-    (fn [g x y angle unit]
-      (exec-commands (struct turtle-state g x y angle unit nil) fns))))
+(defn compile-lsystem
+     [ls n]
+     "Compile an L-system into a function that draws that figure on the screen."
+     (let [fs (filter identity (map (:symbols ls) (evolve ls n)))]
+       (fn [g x y angle unit]
+	 (exec-commands (struct turtle-state g x y angle unit nil) fs))))
+
+(defn create-draw-fn [ls & opts]
+  "Takes an L-system definition and some extra arguments that describe
+how to draw that shape onto the screen and poduces a function that
+takes two arguments: n (the number of evolutions to perform on the
+L-system) and g (a java.awt.Graphics2D object). That function can then
+be fed to the fractalis.ui/create-simple-frame function to display the
+generated shape on screen."
+  (let [{:keys [angle x y unit border] :or {angle 0, x 0, y 0, unit 10, border 25}} (apply hash-map opts)]
+    (fn [n g]
+      (let [cb (.getClipBounds g)]
+	(if (not (nil? cb))
+	  (let [cw (.getWidth cb)
+		ch (.getHeight cb)
+		a (apply-maybe angle n)
+		u (* (apply-maybe unit n) (- (Math/min cw ch) 50))
+		x1 (/ (* x cw) 100)
+		y1 (/ (* y ch) 100)
+		f (compile-lsystem ls n)]
+	    (f g x1 y1 a u)))))))
+	    
+	    
+	
+    
 
