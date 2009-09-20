@@ -75,24 +75,3 @@ vectors, each containing a single rule."
     (fn [g x y angle unit]
       (exec-commands (struct turtle-state g x y angle unit nil) fns))))
 
-;; System definitions
-
-(def sierpinski
-     (lsystem
-      (:variables a (forward)
-		  b (forward))
-      (:constants + (left 60)
-		  - (right 60))
-      (:start a)
-      (:rules a -> b - a - b
-	      b -> a + b + a)))
-
-(def hilbert
-     (lsystem
-      (:variables L  R)
-      (:constants F (forward)
-		  + (left 90)
-		  - (right 90))
-      (:start L)
-      (:rules L -> + R F - L F L - F R +
-	      R -> - L F + R F R + F L -)))
