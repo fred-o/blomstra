@@ -25,6 +25,16 @@
       (:rules L -> + R F - L F L - F R +
 	      R -> - L F + R F R + F L -)))
 
+(def dragon
+     (lsystem
+      (:variables X Y)
+      (:constants F (forward)
+		  + (right 90)
+		  - (left 90))
+      (:start F X)
+      (:rules X -> X + Y F
+	      Y -> F X - Y)))
+
 
 (defn draw-sierpinski [n]
   (let [draw-fn (create-draw-fn sierpinski n)]
@@ -39,3 +49,10 @@
      (fn [g] (draw-fn g 50 450
                      0
                      (/ 400 (- (Math/pow 2 n) 1)))))))
+
+(defn draw-dragon [n]
+  (let [draw-fn (create-draw-fn dragon n)]
+    (create-simple-frame
+     (fn [g] (draw-fn g 400 150
+                     (rad (* -45 (mod n 4)))
+                     (/ 400 (Math/pow 1.5 n)))))))
