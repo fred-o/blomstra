@@ -26,12 +26,15 @@ the values corresponding to those keys."
 (defn- make-symbol-table
   "Creates a map of symbols and their meanings."
   ([s] (make-symbol-table s nil))
-  ([s st] (if (empty? s) st
-	      (make-symbol-table (first s) (rest s) st)))
-  ([f s st] (if (empty? s) (throw (IllegalArgumentException. (format "Expected another symbol after '%s'" f)))
-		(let [v (first s)]
-		  (make-symbol-table
-		   (rest s) (if (list? v) (add-symbol f v st) st))))))
+  ([s st]
+     (if (empty? s) st
+	 (make-symbol-table (first s) (rest s) st)))
+  ([f s st]
+     (if (empty? s) (throw (IllegalArgumentException. (format "Expected another symbol after '%s'" f)))
+	 (let [v (first s)]
+	   (if (list? v)
+	     (make-symbol-table (rest s) (add-symbol f v st))
+	     (make-symbol-table s st))))))
 
 (defn- split-rules
   "Parse a list of rule definitions and split them into a list of
@@ -99,8 +102,8 @@ vectors, each containing a single rule."
   (let [w (- width (* 2 border))
 	h (- height (* 2 border))
 	m (min (/ w (:width bb)) (/ h (:height bb)))]
-    {:x (* m (- (:x bb)))
-     :y (* m (- (:y bb)))
+    {:x (+ border (* m (- (:x bb))))
+     :y (+ border (* m (- (:y bb))))
      :u m }))
 
 (defn create-draw-fn [ls & opts]
@@ -117,6 +120,6 @@ vectors, each containing a single rule."
 	  (let [cw (.getWidth cb)
 		ch (.getHeight cb)
 		a (apply-maybe angle n)
-		{:keys [x y u]} (get-starting-coords (get-bounding-box ls n a) cw ch)
+		{:keys [x y u]} (get-starting-coords (get-bounding-box ls n a) cw ch border)
 		f (compile-lsystem ls n)]
 	    (f g x y a u)))))))
