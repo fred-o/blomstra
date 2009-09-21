@@ -1,5 +1,6 @@
 (ns fractalis.lsystem
-  (:use [fractalis.turtle]))
+  (:use [fractalis.turtle])
+  (:import [java.awt Graphics2D]))
 
 ;; Helper functions
 
@@ -93,9 +94,11 @@ vectors, each containing a single rule."
 		   (let [{:keys [x y] :as st2 } ((first fs) st)]
 		     (recur (min x1 x) (min y1 y) (max x2 x) (max y2 y) (rest fs) st2))))))
 
-(defn get-starting-coords [bb width height]
+(defn get-starting-coords [bb width height border]
   "Given a bounding box, calculate starting coords and unit length."
-  (let [m (min (/ width (:width bb)) (/ height (:height bb)))]
+  (let [w (- width (* 2 border))
+	h (- height (* 2 border))
+	m (min (/ w (:width bb)) (/ h (:height bb)))]
     {:x (* m (- (:x bb)))
      :y (* m (- (:y bb)))
      :u m }))
@@ -108,7 +111,7 @@ vectors, each containing a single rule."
   then be fed to the fractalis.ui/create-simple-frame function to
   display the generated shape on screen."
   (let [{:keys [angle border] :or {angle 0, border 25}} (apply hash-map opts)]
-    (fn [n g]
+    (fn [n #^Graphics2D g]
       (let [cb (.getClipBounds g)]
 	(if (not (nil? cb))
 	  (let [cw (.getWidth cb)
