@@ -23,7 +23,8 @@
   ([st] (forward 1 st))
   ([mul st]
      (let [[x y] (newpos mul st)]
-       (.drawLine (:g st) (:x st) (:y st) x y)
+       (when (:g st)
+	 (.drawLine (:g st) (:x st) (:y st) x y))
        (assoc st :x x :y y))))
 
 (defn skip [len st]
@@ -49,6 +50,5 @@
       (recur
        ((first cmds) st)
        (rest cmds))))
-
 
        

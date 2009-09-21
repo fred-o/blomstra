@@ -72,34 +72,48 @@ vectors, each containing a single rule."
 	  (mapcat #(or (% subs) (list %)) s)
 	  subs (dec n)))))
 
-(defn compile-lsystem
-     [ls n]
-     "Compile an L-system into a function that draws that figure on the screen."
-     (let [fs (filter identity (map (:symbols ls) (evolve ls n)))]
-       (fn [g x y angle unit]
-	 (exec-commands (struct turtle-state g x y angle unit nil) fs))))
+(def function-list 
+     (memoize (fn [ls n]
+		(filter identity (map (:symbols ls) (evolve ls n))))))
+
+(defn compile-lsystem [ls n]
+  "Compile an L-system into a function that draws that figure on the screen."
+  (let [fs (function-list ls n)]
+    (fn [g x y angle unit]
+      (exec-commands (struct turtle-state g x y angle unit nil) fs))))
+
+(defn get-bounding-box [ls n a]
+  "Calculates the bounding box for a given L-system of n permutations
+  with an angle of a. The box is calculated with a unit length of
+  1.0 and a starting x/y of 0."
+  (let [fs (function-list ls n)]
+    (loop [x1 0 y1 0 x2 0 y2 0 fs fs
+	   st (struct turtle-state nil 0 0 a 1.0 nil)]
+      (if (empty? fs) { :x x1, :y y1, :width (- x2 x1), :height (- y2 y1)}
+		   (let [{:keys [x y] :as st2 } ((first fs) st)]
+		     (recur (min x1 x) (min y1 y) (max x2 x) (max y2 y) (rest fs) st2))))))
+
+(defn get-starting-coords [bb width height]
+  "Given a bounding box, calculate starting coords and unit length."
+  (let [m (min (/ width (:width bb)) (/ height (:height bb)))]
+    {:x (* m (- (:x bb)))
+     :y (* m (- (:y bb)))
+     :u m }))
 
 (defn create-draw-fn [ls & opts]
   "Takes an L-system definition and some extra arguments that describe
-how to draw that shape onto the screen and poduces a function that
-takes two arguments: n (the number of evolutions to perform on the
-L-system) and g (a java.awt.Graphics2D object). That function can then
-be fed to the fractalis.ui/create-simple-frame function to display the
-generated shape on screen."
-  (let [{:keys [angle x y unit border] :or {angle 0, x 0, y 0, unit 10, border 25}} (apply hash-map opts)]
+  how to draw that shape onto the screen and poduces a function that
+  takes two arguments: n (the number of evolutions to perform on the
+  L-system) and g (a java.awt.Graphics2D object). That function can
+  then be fed to the fractalis.ui/create-simple-frame function to
+  display the generated shape on screen."
+  (let [{:keys [angle border] :or {angle 0, border 25}} (apply hash-map opts)]
     (fn [n g]
       (let [cb (.getClipBounds g)]
 	(if (not (nil? cb))
 	  (let [cw (.getWidth cb)
 		ch (.getHeight cb)
 		a (apply-maybe angle n)
-		u (* (apply-maybe unit n) (- (Math/min cw ch) 50))
-		x1 (/ (* x cw) 100)
-		y1 (/ (* y ch) 100)
+		{:keys [x y u]} (get-starting-coords (get-bounding-box ls n a) cw ch)
 		f (compile-lsystem ls n)]
-	    (f g x1 y1 a u)))))))
-	    
-	    
-	
-    
-
+	    (f g x y a u)))))))

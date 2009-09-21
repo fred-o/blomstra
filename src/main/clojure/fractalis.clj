@@ -19,9 +19,7 @@
 
 (def draw-sierpinski
      (create-draw-fn sierpinski
-		     :x 10 :y 90
-		     :angle #(if (even? %) 0 (rad -60))
-		     :unit #(/ 1 (pow 2 %))))
+		     :angle #(if (even? %) 0 (rad -60))))
 
 ;; (create-simple-frame (partial draw-sierpinski 8))
 
@@ -38,9 +36,7 @@
 	      R -> - L F + R F R + F L -)))
 
 (def draw-hilbert
-     (create-draw-fn hilbert
-		     :x 5 :y 95 :angle 0
-		     :unit #(/ 1 (- (pow 2 %) 1))))
+     (create-draw-fn hilbert))
 
 ; (create-simple-frame (partial draw-hilbert 6))
 
@@ -58,17 +54,6 @@
 
 (def draw-dragon
      (create-draw-fn dragon
-		     :x 30 :y 40
-		     :angle #(rad (* -45 (mod % 8)))
-		     :unit #(/ 1 (pow (sqrt 2) %))))
+		     :angle #(rad (* -45 (mod % 8)))))
 
 ;; (create-simple-frame (partial draw-dragon 14))
-
-;;; (defn draw-dragon [n]
-;;;   (let [draw-fn (create-draw-fn dragon n)]
-;;;     (create-simple-frame
-;;;      (fn [g] (do
-;;; 	       (prn (.getClipBounds g))
-;;; 	       (draw-fn g 120 275
-;;; 			(rad (* -45 (mod n 8)))
-;;; 			(/ 300 (Math/pow (Math/sqrt 2) n))))))))
