@@ -39,9 +39,9 @@
 	   frame (JFrame. "Fractalis")
 	   c (proxy [Canvas] nil
 	       (paint [g]
-		      (.setRenderingHints g rh)
 		      (bg-fn g)
 		      (.setColor g Color/black)
+		      (.setRenderingHints g rh)
 		      (update-fn g)))]
        (doto frame
 	 (.setSize 500 500)

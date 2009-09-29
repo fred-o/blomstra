@@ -1,7 +1,7 @@
-(ns fractalis
-  (:use [fractalis.turtle]
-	[fractalis.lsystem]
-	[fractalis.ui]
+(ns blomstra
+  (:use [blomstra.turtle]
+	[blomstra.lsystem]
+	[blomstra.ui]
 	[clojure.contrib.import-static]))
 (import-static java.lang.Math pow sqrt)
 
