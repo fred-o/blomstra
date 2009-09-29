@@ -1,4 +1,4 @@
-(ns fractalis.ui
+(ns blomstra.ui
   (:import [javax.swing JFrame JLabel]
 	   [java.awt Canvas Color GradientPaint Graphics2D RenderingHints]))
 

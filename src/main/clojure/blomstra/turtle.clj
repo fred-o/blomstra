@@ -1,4 +1,4 @@
-(ns fractalis.turtle
+(ns blomstra.turtle
   (:use [clojure.contrib.import-static])
   (:import [java.awt Graphics2D]))
 (import-static java.lang.Math cos sin PI)
